@@ -1,6 +1,6 @@
 // Copyright (c) 2024 Picnic Ventures, Ltd.
 
-public struct AnyObserver<Value: Sendable>: Observer {
+public struct AnyObserver<Value: Sendable>: Observer, Sendable {
     private let _next: NextHandler<Value>?
     private let _error: ErrorHandler?
     private let _complete: CompleteHandler?

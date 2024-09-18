@@ -57,8 +57,23 @@ enum ObservableTests {
   }
 
   @Test static func of() async throws {
-    let actual = try await Observable.of(1, 2, 3).values()
-    #expect(actual == [1, 2, 3])
+    let values = try await Observable.of(1, 2, 3).values()
+    #expect(values == [1, 2, 3])
+  }
+
+  @Test static func map() async throws {
+    let doubled = try await Observable.of(1, 2, 3).map { $0 * 2 }.values()
+    #expect(doubled == [2, 4, 6])
+    _ = await confirmation { done in
+      Observable.of(1, 2, 3).map { value in
+        if value == 2 { throw TestError() }
+        return value
+      }.subscribe(
+        next: { #expect($0 == 1) },
+        error: { _ in done.confirm() },
+        complete: { fail() }
+      )
+    }
   }
 }
 
