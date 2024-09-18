@@ -116,6 +116,26 @@ enum ObservableTests {
     let negative = try await Observable.of(1, 2, 3, 4, 5).take(-2).values()
     #expect(negative == [])
   }
+
+  @Test static func combineLatest() async throws {
+//    let left = Observable.interval(.seconds(1))
+//    let right = Observable.interval(.seconds(2.5))
+//    let values = try await Observable.combineLatest(left, right).take(10).values()
+//    print(values)
+  }
+
+  @Test static func mainActor() async throws {
+    @MainActor func runTest() async throws -> [Int] {
+      try await Observable.of(1, 2, 3)
+        .switchMap { @MainActor i in
+          MainActor.assertIsolated()
+          return i
+        }
+        .values()
+    }
+    let values = try await runTest()
+    #expect(values == [])
+  }
 }
 
 private struct TestError: Error {}

@@ -61,7 +61,7 @@
 --someany true
 --stripunusedargs always
 --structthreshold 0
---swiftversion 5.9
+--swiftversion 6.0
 --tabwidth 2
 --throwcapturing 
 --trailingclosures 
