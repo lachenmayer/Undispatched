@@ -1,9 +1,4 @@
-//
-//  Observable+of.swift
-//  Undispatched
-//
-//  Created by Harry Lachenmayer on 18/09/2024.
-//
+// Copyright (c) 2024 Harry Lachenmayer
 
 public extension Observable {
   static func of(_ values: Value...) -> Observable<Value> {

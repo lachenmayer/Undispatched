@@ -1,4 +1,4 @@
-// Copyright (c) 2024 Picnic Ventures, Ltd.
+// Copyright (c) 2024 Harry Lachenmayer
 
 public extension Observable {
   static var never: Observable<Value> {

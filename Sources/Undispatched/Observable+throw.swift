@@ -1,9 +1,9 @@
 // Copyright (c) 2024 Harry Lachenmayer
 
 public extension Observable {
-  static var empty: Observable<Value> {
+  static func error(_ error: Error) -> Observable<Value> {
     Observable { observer in
-      observer.complete()
+      observer.error(error)
       return nil
     }
   }

@@ -1,4 +1,4 @@
-// Copyright (c) 2024 Picnic Ventures, Ltd.
+// Copyright (c) 2024 Harry Lachenmayer
 
 import Testing
 import Undispatched
@@ -74,6 +74,47 @@ enum ObservableTests {
         complete: { fail() }
       )
     }
+  }
+
+  @Test static func filter() async throws {
+    let evens = try await Observable.of(1, 2, 3, 4, 5, 6).filter { $0.isMultiple(of: 2) }
+      .values()
+    #expect(evens == [2, 4, 6])
+    await #expect(throws: TestError.self) {
+      try await Observable.error(TestError()).filter { true }.values()
+    }
+  }
+
+  @Test static func switchMap() async throws {
+    let values = try await Observable.of(1, 2, 3).switchMap { n in
+      .of(n * 10, n * 10 + 1, n * 10 + 2)
+    }.values()
+    #expect(values == [10, 11, 12, 20, 21, 22, 30, 31, 32])
+  }
+
+  @Test static func switchMapUnsubscribesFromInnerObservables() async throws {
+    _ = await confirmation { done in
+      _ = await confirmation(expectedCount: 2) { unsubscribe in
+        Observable.of(1, 2, 3)
+          .switchMap { n in
+            Observable<Void> { _ in
+              return { unsubscribe.confirm() }
+            }
+          }
+          .subscribe(complete: { done.confirm() })
+      }
+    }
+  }
+
+  @Test static func take() async throws {
+    let two = try await Observable.of(1, 2, 3, 4, 5).take(2).values()
+    #expect(two == [1, 2])
+    let one = try await Observable.of(1, 2, 3, 4, 5).take(1).values()
+    #expect(one == [1])
+    let zero = try await Observable.of(1, 2, 3, 4, 5).take(0).values()
+    #expect(zero == [])
+    let negative = try await Observable.of(1, 2, 3, 4, 5).take(-2).values()
+    #expect(negative == [])
   }
 }
 

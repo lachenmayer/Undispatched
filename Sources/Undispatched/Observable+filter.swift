@@ -1,15 +1,12 @@
 // Copyright (c) 2024 Harry Lachenmayer
 
 public extension Observable {
-  func map<Mapped>(_ f: @Sendable @escaping (Value) throws -> Mapped) -> Observable<Mapped> {
-    Observable<Mapped> { observer in
+  func filter(_ predicate: @Sendable @escaping (Value) -> Bool) -> Observable<Value> {
+    Observable { observer in
       let subscription = subscribe(
         next: { value in
-          do {
-            let mapped = try f(value)
-            observer.next(mapped)
-          } catch {
-            observer.error(error)
+          if predicate(value) {
+            observer.next(value)
           }
         },
         error: observer.error,
