@@ -118,10 +118,10 @@ enum ObservableTests {
   }
 
   @Test static func combineLatest() async throws {
-//    let left = Observable.interval(.seconds(1))
-//    let right = Observable.interval(.seconds(2.5))
-//    let values = try await Observable.combineLatest(left, right).take(10).values()
-//    print(values)
+    let left = Observable.interval(.seconds(1))
+    let right = Observable.interval(.seconds(2.5))
+    let values = try await Observable.combineLatest(left, right).take(10).values()
+    print(values)
   }
 
   @Test static func mainActor() async throws {

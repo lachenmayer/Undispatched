@@ -2,7 +2,7 @@
 
 import Synchronization
 
-final class Subscriber<Value: Sendable>: Observer, Sendable {
+final class Subscriber<Value: Sendable>: ObserverProtocol, Sendable {
   private let destinationNext: NextHandler<Value>?
   private let destinationError: ErrorHandler?
   private let destinationComplete: CompleteHandler?

@@ -15,8 +15,12 @@ public struct Observable<Value: Sendable>: Sendable {
     complete: CompleteHandler? = nil
   ) -> Subscription {
     let subscriber = Subscriber(next: next, error: error, complete: complete)
+    return subscribe(subscriber: subscriber)
+  }
+
+  func subscribe(subscriber: Subscriber<Value>) -> Subscription {
     do {
-      let observer = AnyObserver(
+      let observer = Observer(
         next: subscriber.next,
         error: subscriber.error,
         complete: subscriber.complete
