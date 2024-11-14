@@ -16,7 +16,7 @@ public protocol ObserverProtocol: Sendable {
   func complete()
 }
 
-public protocol ObservableProtocol {
+public protocol ObservableProtocol: Sendable {
   associatedtype Value: Sendable
 
   func subscribe(next: NextHandler<Value>?, error: ErrorHandler?, complete: CompleteHandler?)
@@ -29,3 +29,5 @@ extension ObservableProtocol {
     subscribe(next: observer.next, error: observer.error, complete: observer.complete)
   }
 }
+
+public protocol SubjectProtocol: ObserverProtocol, ObservableProtocol {}
