@@ -2,7 +2,7 @@
 
 import Synchronization
 
-public struct Observable<Value: Sendable>: Sendable {
+public struct Observable<Value: Sendable>: Sendable, ObservableProtocol {
   private let subscribeLogic: SubscribeLogic<Value>
 
   public init(_ subscribeLogic: @escaping SubscribeLogic<Value>) {
@@ -15,16 +15,12 @@ public struct Observable<Value: Sendable>: Sendable {
     complete: CompleteHandler? = nil
   ) -> Subscription {
     let subscriber = Subscriber(next: next, error: error, complete: complete)
-    return subscribe(subscriber: subscriber)
-  }
-
-  func subscribe(subscriber: Subscriber<Value>) -> Subscription {
+    let observer = Observer(
+      next: subscriber.next,
+      error: subscriber.error,
+      complete: subscriber.complete
+    )
     do {
-      let observer = Observer(
-        next: subscriber.next,
-        error: subscriber.error,
-        complete: subscriber.complete
-      )
       let teardown = try subscribeLogic(observer)
       subscriber.add(teardown)
     } catch {

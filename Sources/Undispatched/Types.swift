@@ -8,16 +8,24 @@ public typealias SubscribeLogic<Value: Sendable> = @Sendable (Observer<Value>) t
   -> TeardownHandler?
 typealias Finalizer = Ref<TeardownHandler>
 
-public protocol ObserverProtocol {
+public protocol ObserverProtocol: Sendable {
   associatedtype Value: Sendable
 
-  func next(_ value: Value) -> Void
-  func error(_ error: Error) -> Void
-  func complete() -> Void
+  func next(_ value: Value)
+  func error(_ error: Error)
+  func complete()
 }
 
-public protocol Subscribable {
+public protocol ObservableProtocol {
   associatedtype Value: Sendable
 
-  func subscribe(_ observer: Observer<Value>) -> TeardownHandler?
+  func subscribe(next: NextHandler<Value>?, error: ErrorHandler?, complete: CompleteHandler?)
+    -> Subscription
+}
+
+extension ObservableProtocol {
+  public func subscribe<O: ObserverProtocol>(_ observer: O) -> Subscription
+  where Self.Value == O.Value {
+    subscribe(next: observer.next, error: observer.error, complete: observer.complete)
+  }
 }
