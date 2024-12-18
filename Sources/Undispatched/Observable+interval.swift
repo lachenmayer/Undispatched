@@ -1,7 +1,7 @@
 // Copyright (c) 2024 Harry Lachenmayer
 
-public extension Observable<Int> {
-  static func interval<C>(
+extension Observable<Int> {
+  public static func interval<C>(
     _ duration: C.Instant.Duration,
     clock: C = ContinuousClock()
   ) -> Observable<Int> where C: Clock {

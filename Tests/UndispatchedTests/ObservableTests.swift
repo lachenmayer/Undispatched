@@ -105,6 +105,20 @@ import Undispatched
   }
 }
 
+@Test func mergeMapSync() async throws {
+  let values = try await Observable.of(1, 2, 3).mergeMap { n in
+    .of(n * 10, n * 10 + 1, n * 10 + 2)
+  }.values()
+  #expect(values == [10, 11, 12, 20, 21, 22, 30, 31, 32])
+}
+
+@Test func mergeMapDelay() async throws {
+  let values = try await Observable.of(1, 2, 3).mergeMap { n in
+    Observable.merge(.of(n * 10), .of(n * 10 + 1).delay(0.01 * n))
+  }.values()
+  #expect(values == [10, 20, 30, 11, 21, 31])
+}
+
 @Test func take() async throws {
   let two = try await Observable.of(1, 2, 3, 4, 5).take(2).values()
   #expect(two == [1, 2])
@@ -117,10 +131,14 @@ import Undispatched
 }
 
 @Test func combineLatest() async throws {
-  let left = Observable.interval(.seconds(1))
-  let right = Observable.interval(.seconds(2.5))
-  let values = try await Observable.combineLatest(left, right).take(10).values()
-  print(values)
+  let left = Observable.interval(.seconds(0.1))
+  let right = Observable.interval(.seconds(0.25))
+  let values = try await Observable.combineLatest(left, right).take(4).values()
+  #expect(values[0] == (1, 0))
+  #expect(values[1] == (2, 0))
+  #expect(values[2] == (3, 0))
+  #expect(values[3] == (3, 1))
+  #expect(values.count == 4)
 }
 
 @Test func mainActor() async throws {

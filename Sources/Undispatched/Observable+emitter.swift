@@ -1,7 +1,9 @@
 // Copyright (c) 2024 Harry Lachenmayer
 
-public extension Observable {
-  static func emitter(_ create: @Sendable @escaping (NextHandler<Value>) async throws -> Void)
+extension Observable {
+  public static func emitter(
+    _ create: @Sendable @escaping (NextHandler<Value>) async throws -> Void
+  )
     -> Observable<Value>
   {
     Observable { observer in

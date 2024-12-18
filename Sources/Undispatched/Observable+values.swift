@@ -2,8 +2,8 @@
 
 import Synchronization
 
-public extension Observable {
-  func values() async throws -> [Value] {
+extension Observable {
+  public func values() async throws -> [Value] {
     let subscription = Mutex<Subscription?>(nil)
     let values = ConcurrentArray<Value>()
     try await withTaskCancellationHandler {

@@ -2,12 +2,12 @@
 
 public typealias SubscribeHandler = @Sendable () -> Void
 
-public extension Observable {
-  func tap(_ next: @escaping NextHandler<Value>) -> Observable<Value> {
+extension Observable {
+  public func tap(_ next: @escaping NextHandler<Value>) -> Observable<Value> {
     tap(next: next)
   }
 
-  func tap(
+  public func tap(
     next onNext: NextHandler<Value>? = nil,
     error onError: ErrorHandler? = nil,
     complete onComplete: CompleteHandler? = nil,

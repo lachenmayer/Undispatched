@@ -1,7 +1,7 @@
 // Copyright (c) 2024 Harry Lachenmayer
 
-public extension Observable {
-  func filter(_ predicate: @Sendable @escaping (Value) -> Bool) -> Observable<Value> {
+extension Observable {
+  public func filter(_ predicate: @Sendable @escaping (Value) -> Bool) -> Observable<Value> {
     Observable { observer in
       let subscription = subscribe(
         next: { value in

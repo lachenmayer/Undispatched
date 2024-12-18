@@ -9,7 +9,7 @@ let package = Package(
     .library(
       name: "Undispatched",
       targets: ["Undispatched"]
-    ),
+    )
   ],
   targets: [
     .target(

@@ -4,18 +4,19 @@ import os
 
 let logger = Logger(subsystem: "me.lachenmayer.Undispatched", category: "Undispatched")
 
-public extension Observable {
-  func log(
+extension Observable {
+  public func log(
     prefix: String? = nil,
     file: StaticString = #fileID,
     function: StaticString = #function,
     line: UInt = #line
   ) -> Observable<Value> {
-    let logPrefix = if let prefix {
-      "\(prefix) (\(file) \(function):\(line))"
-    } else {
-      "\(file) \(function):\(line)"
-    }
+    let logPrefix =
+      if let prefix {
+        "\(prefix) (\(file) \(function):\(line))"
+      } else {
+        "\(file) \(function):\(line)"
+      }
     return tap(
       next: { value in
         logger.debug("\(logPrefix)\nnext \(String(describing: value))")

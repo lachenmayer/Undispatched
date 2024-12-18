@@ -2,8 +2,10 @@
 
 import Synchronization
 
-public extension Observable<Void> {
-  static func combineLatest<A, B>(_ a: Observable<A>, _ b: Observable<B>) -> Observable<(A, B)> {
+extension Observable<Void> {
+  public static func combineLatest<A, B>(_ a: Observable<A>, _ b: Observable<B>) -> Observable<
+    (A, B)
+  > {
     Observable<(A, B)> { observer in
       let values = Mutex<(a: A?, b: B?)>((a: nil, b: nil))
       let activeSubscriptions = Mutex(2)
@@ -47,20 +49,22 @@ public extension Observable<Void> {
     }
   }
 
-  static func combineLatest<A, B, C>(
+  public static func combineLatest<A, B, C>(
     _ a: Observable<A>,
     _ b: Observable<B>,
     _ c: Observable<C>
-  ) -> Observable<(
-    A,
-    B,
-    C
-  )> {
+  ) -> Observable<
+    (
+      A,
+      B,
+      C
+    )
+  > {
     Observable.combineLatest(Observable.combineLatest(a, b), c)
       .map { l, r in (l.0, l.1, r) }
   }
 
-  static func combineLatest<A, B, C, D>(
+  public static func combineLatest<A, B, C, D>(
     _ a: Observable<A>,
     _ b: Observable<B>,
     _ c: Observable<C>,

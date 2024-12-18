@@ -2,8 +2,8 @@
 
 import Synchronization
 
-public extension Observable {
-  func switchMap<Mapped>(f: @escaping @Sendable (Value) -> Observable<Mapped>)
+extension Observable {
+  public func switchMap<Mapped>(_ f: @escaping @Sendable (Value) -> Observable<Mapped>)
     -> Observable<Mapped>
   {
     Observable<Mapped> { observer in
@@ -40,7 +40,7 @@ public extension Observable {
     }
   }
 
-  func switchMap<Mapped>(f: @escaping @Sendable (Value) async throws -> Mapped)
+  public func switchMap<Mapped>(_ f: @escaping @Sendable (Value) async throws -> Mapped)
     -> Observable<Mapped>
   {
     switchMap { value in Observable<Mapped>.async { try await f(value) } }

@@ -1,7 +1,9 @@
 // Copyright (c) 2024 Harry Lachenmayer
 
-public extension Observable {
-  static func async(_ create: @Sendable @escaping () async throws -> Value) -> Observable<Value> {
+extension Observable {
+  public static func async(_ create: @Sendable @escaping () async throws -> Value) -> Observable<
+    Value
+  > {
     Observable { observer in
       let task = Task {
         do {

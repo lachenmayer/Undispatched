@@ -1,6 +1,7 @@
 // Copyright (c) 2024 Harry Lachenmayer
 
-public final class Subscription: Sendable {
+public final class Subscription: Sendable, Hashable {
+
   private let _unsubscribe: @Sendable () -> Void
 
   static var empty: Subscription { Subscription {} }
@@ -15,5 +16,15 @@ public final class Subscription: Sendable {
 
   deinit {
     _unsubscribe()
+  }
+
+  var id: ObjectIdentifier { ObjectIdentifier(self) }
+
+  public static func == (lhs: Subscription, rhs: Subscription) -> Bool {
+    lhs.id == rhs.id
+  }
+
+  public func hash(into hasher: inout Hasher) {
+    hasher.combine(id)
   }
 }

@@ -1,7 +1,7 @@
 // Copyright (c) 2024 Harry Lachenmayer
 
-public extension Observable {
-  func map<Mapped>(_ f: @Sendable @escaping (Value) throws -> Mapped) -> Observable<Mapped> {
+extension Observable {
+  public func map<Mapped>(_ f: @Sendable @escaping (Value) throws -> Mapped) -> Observable<Mapped> {
     Observable<Mapped> { observer in
       let subscription = subscribe(
         next: { value in
