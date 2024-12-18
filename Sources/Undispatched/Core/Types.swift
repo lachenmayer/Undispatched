@@ -9,8 +9,10 @@ public typealias SubscribeLogic<Value: Sendable> = @Sendable (Subscriber<Value>)
 
 typealias Finalizer = Ref<UnsubscribeLogic>
 
-public protocol ObserverProtocol: Sendable {
+public protocol SubscriberProtocol: Sendable {
   associatedtype Value: Sendable
+
+  var isCompleted: Bool { get }
 
   func next(_ value: Value)
   func error(_ error: Error)
@@ -21,14 +23,14 @@ public protocol ObservableProtocol: Sendable {
   associatedtype Value: Sendable
 
   func subscribe(next: NextHandler<Value>?, error: ErrorHandler?, complete: CompleteHandler?)
-    -> Subscription
+    -> AnySubscriber
 }
 
 extension ObservableProtocol {
-  public func subscribe<O: ObserverProtocol>(_ subscriber: O) -> Subscription
-  where Self.Value == O.Value {
+  public func subscribe<S: SubscriberProtocol>(_ subscriber: S) -> AnySubscriber
+  where Self.Value == S.Value {
     subscribe(next: subscriber.next, error: subscriber.error, complete: subscriber.complete)
   }
 }
 
-public protocol SubjectProtocol: ObserverProtocol, ObservableProtocol {}
+public protocol SubjectProtocol: SubscriberProtocol, ObservableProtocol {}

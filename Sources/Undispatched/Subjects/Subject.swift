@@ -47,7 +47,7 @@ public final class Subject<Value: Sendable>: Sendable, SubjectProtocol {
 
   let state = Mutex<State>(State.open(Subscribers()))
 
-  public var isClosed: Bool {
+  public var isCompleted: Bool {
     state.withLock {
       if case .open = $0 { return false }
       return true
@@ -59,7 +59,7 @@ public final class Subject<Value: Sendable>: Sendable, SubjectProtocol {
   // MARK: Observer
 
   public func next(_ value: Value) {
-    if isClosed { return }
+    if isCompleted { return }
     let subscribers = state.withLock { state -> Subscribers.Values? in
       if case let .open(subscribers) = state {
         return subscribers.values
@@ -114,7 +114,7 @@ public final class Subject<Value: Sendable>: Sendable, SubjectProtocol {
     next: NextHandler<Value>? = nil,
     error: ErrorHandler? = nil,
     complete: CompleteHandler? = nil
-  ) -> Subscription {
+  ) -> AnySubscriber {
     let subscriber = Subscriber(next: next, error: error, complete: complete)
     let subscriberId = state.withLock { state -> Int? in
       if case let .open(subscribers) = state {
@@ -126,7 +126,7 @@ public final class Subject<Value: Sendable>: Sendable, SubjectProtocol {
     }
     guard let subscriberId else {
       // Already closed.
-      return Subscription.empty
+      return AnySubscriber.empty
     }
     subscriber.add { [weak self] in
       self?.state.withLock { state in
@@ -135,7 +135,7 @@ public final class Subject<Value: Sendable>: Sendable, SubjectProtocol {
         }
       }
     }
-    return Subscription(subscriber: subscriber)
+    return AnySubscriber(subscriber: subscriber)
   }
 
   public var observable: Observable<Value> {

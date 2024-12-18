@@ -15,6 +15,10 @@ public final class BehaviorSubject<Value: Sendable>: SubjectProtocol {
     self.currentValue = Mutex(value)
   }
 
+  public var isCompleted: Bool {
+    subject.isCompleted
+  }
+
   public var value: Value {
     get throws {
       let error = subject.state.withLock { state -> Error? in
@@ -40,7 +44,7 @@ public final class BehaviorSubject<Value: Sendable>: SubjectProtocol {
   }
 
   public func subscribe(next: NextHandler<Value>?, error: ErrorHandler?, complete: CompleteHandler?)
-    -> Subscription
+    -> AnySubscriber
   {
     subject.subscribe(next: next, error: error, complete: complete)
   }

@@ -13,7 +13,7 @@ extension Observable {
   {
     Observable<Mapped> { subscriber in
       let nextSubscriptionId = Mutex(0)
-      let activeSubscriptions = Mutex([Int: Subscription]())
+      let activeSubscriptions = Mutex([Int: AnySubscriber]())
       let sourceComplete = Mutex(false)
 
       @Sendable func maybeComplete() {

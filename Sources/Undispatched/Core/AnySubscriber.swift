@@ -2,7 +2,7 @@
 
 import Synchronization
 
-public final class Subscription: Sendable, Hashable {
+public final class AnySubscriber: Sendable, Hashable {
   private let _isCompleted: @Sendable () -> Bool
   private let _unsubscribe: @Sendable () -> Void
 
@@ -18,7 +18,7 @@ public final class Subscription: Sendable, Hashable {
     self._unsubscribe = {}
   }
 
-  static var empty: Subscription { Subscription() }
+  static var empty: AnySubscriber { AnySubscriber() }
 
   public func unsubscribe() {
     _unsubscribe()
@@ -30,7 +30,7 @@ public final class Subscription: Sendable, Hashable {
 
   var id: ObjectIdentifier { ObjectIdentifier(self) }
 
-  public static func == (lhs: Subscription, rhs: Subscription) -> Bool {
+  public static func == (lhs: AnySubscriber, rhs: AnySubscriber) -> Bool {
     lhs.id == rhs.id
   }
 

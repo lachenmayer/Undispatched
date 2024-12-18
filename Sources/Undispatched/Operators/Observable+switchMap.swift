@@ -7,7 +7,7 @@ extension Observable {
     -> Observable<Mapped>
   {
     Observable<Mapped> { subscriber in
-      let innerSubscription = Mutex<Subscription?>(nil)
+      let innerSubscription = Mutex<AnySubscriber?>(nil)
       let sourceComplete = Mutex(false)
 
       @Sendable func maybeComplete() {

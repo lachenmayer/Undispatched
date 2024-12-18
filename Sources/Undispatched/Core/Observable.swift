@@ -13,7 +13,7 @@ public struct Observable<Value: Sendable>: Sendable, ObservableProtocol {
     next: NextHandler<Value>? = nil,
     error: ErrorHandler? = nil,
     complete: CompleteHandler? = nil
-  ) -> Subscription {
+  ) -> AnySubscriber {
     let subscriber = Subscriber(next: next, error: error, complete: complete)
     do {
       let teardown = try subscribeLogic(subscriber)
@@ -21,6 +21,6 @@ public struct Observable<Value: Sendable>: Sendable, ObservableProtocol {
     } catch {
       subscriber.error(error)
     }
-    return Subscription(subscriber: subscriber)
+    return AnySubscriber(subscriber: subscriber)
   }
 }
