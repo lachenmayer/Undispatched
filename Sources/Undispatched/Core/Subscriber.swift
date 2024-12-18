@@ -32,22 +32,29 @@ final class Subscriber<Value: Sendable>: ObserverProtocol, Sendable {
     destination.add(subscriber: self)
   }
 
-  private let stopped = Mutex(false)
+  private let completedState = Mutex(false)
 
-  private var isStopped: Bool {
-    stopped.withLock { $0 }
-  }
+  var isCompleted: Bool { completedState.withLock { $0 } }
 
-  private func stop() -> Bool {
-    stopped.withLock { stopped in
-      let alreadyStopped = stopped
-      stopped = true
-      return alreadyStopped
+  private func maybeComplete() -> Bool {
+    completedState.withLock { completed in
+      let alreadyCompleted = completed
+      completed = true
+      return alreadyCompleted
     }
   }
 
-  private let closed = Mutex(false)
-  private var isClosed: Bool { closed.withLock { $0 } }
+  private let finalizedState = Mutex(false)
+  
+  var isFinalized: Bool { finalizedState.withLock { $0 } }
+  
+  private func maybeFinalized() -> Bool {
+    finalizedState.withLock { finalized in
+      let alreadyFinalized = finalized
+      finalized = true
+      return alreadyFinalized
+    }
+  }
 
   // TODO: Should this be an ordered set?
   private let finalizers = Mutex(Set<Finalizer>())
@@ -61,38 +68,39 @@ final class Subscriber<Value: Sendable>: ObserverProtocol, Sendable {
   }
 
   func next(_ value: Value) {
-    if isStopped { return }
+    if isCompleted { return }
     destinationNext?(value)
   }
 
   func error(_ error: Error) {
-    let alreadyStopped = stop()
-    if alreadyStopped { return }
+    let alreadyCompleted = maybeComplete()
+    if alreadyCompleted { return }
     destinationError?(error)
   }
 
   func complete() {
-    let alreadyStopped = stop()
-    if alreadyStopped { return }
+    let alreadyCompleted = maybeComplete()
+    if alreadyCompleted { return }
     destinationComplete?()
   }
 
   func unsubscribe() {
-    if isClosed { return }
-    closed.withLock { $0 = true }
+    let alreadyClosed = maybeFinalized()
+    if alreadyClosed { return }
+    completedState.withLock { $0 = true }
     let finalizers = finalizers.withLock { $0 }
     for finalizer in finalizers {
       finalizer.value()
     }
   }
 
-  func add(_ teardown: TeardownHandler?) {
-    guard let teardown else { return }
-    add(finalizer: Finalizer(teardown))
+  func add(_ unsubscribeLogic: UnsubscribeLogic?) {
+    guard let unsubscribeLogic else { return }
+    add(finalizer: Finalizer(unsubscribeLogic))
   }
 
   private func add(finalizer: Finalizer) {
-    if isClosed {
+    if isFinalized {
       finalizer.value()
     } else {
       addFinalizer(finalizer)
@@ -101,7 +109,7 @@ final class Subscriber<Value: Sendable>: ObserverProtocol, Sendable {
 
   private func add(subscriber: Subscriber<Value>) {
     guard subscriber !== self else { return }
-    if isClosed {
+    if isFinalized {
       subscriber.unsubscribe()
     } else {
       let unsubscribe = Finalizer { @Sendable in subscriber.unsubscribe() }

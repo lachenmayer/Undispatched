@@ -140,7 +140,7 @@ public final class Subject<Value: Sendable>: Sendable, SubjectProtocol {
         }
       }
     }
-    return Subscription { subscriber.unsubscribe() }
+    return Subscription(subscriber: subscriber)
   }
 
   public var observable: Observable<Value> {

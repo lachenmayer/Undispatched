@@ -157,7 +157,6 @@ import Undispatched
   let right = Observable.interval(.seconds(0.25))
   let values = try await left.when(right).take(4).values()
   #expect(values == [1, 3, 6, 8])
-  print(values)
 }
 
 @Test func mainActor() async throws {

@@ -1,21 +1,31 @@
 // Copyright (c) 2024 Harry Lachenmayer
 
-public final class Subscription: Sendable, Hashable {
+import Synchronization
 
+public final class Subscription: Sendable, Hashable {
+  private let _isCompleted: @Sendable () -> Bool
   private let _unsubscribe: @Sendable () -> Void
 
-  static var empty: Subscription { Subscription {} }
+  public var isCompleted: Bool { _isCompleted() }
 
-  init(_unsubscribe: @escaping @Sendable () -> Void) {
-    self._unsubscribe = _unsubscribe
+  init<Value: Sendable>(subscriber: Subscriber<Value>) {
+    self._isCompleted = { subscriber.isCompleted }
+    self._unsubscribe = subscriber.unsubscribe
   }
+
+  private init() {
+    self._isCompleted = { true }
+    self._unsubscribe = {}
+  }
+
+  static var empty: Subscription { Subscription() }
 
   public func unsubscribe() {
     _unsubscribe()
   }
 
   deinit {
-    _unsubscribe()
+    unsubscribe()
   }
 
   var id: ObjectIdentifier { ObjectIdentifier(self) }

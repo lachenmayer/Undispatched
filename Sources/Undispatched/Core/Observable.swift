@@ -26,6 +26,6 @@ public struct Observable<Value: Sendable>: Sendable, ObservableProtocol {
     } catch {
       subscriber.error(error)
     }
-    return Subscription { subscriber.unsubscribe() }
+    return Subscription(subscriber: subscriber)
   }
 }

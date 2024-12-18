@@ -30,12 +30,10 @@ extension Observable {
             id += 1
             return currentId
           }
-          let subscriptionComplete = Mutex(false)
           let innerSubscription = innerObservable.subscribe(
             next: observer.next,
             error: observer.error,
             complete: {
-              subscriptionComplete.withLock { $0 = true }
               let _ = activeSubscriptions.withLock { actives in
                 actives.removeValue(forKey: subscriptionId)
                 return true
@@ -43,9 +41,7 @@ extension Observable {
               maybeComplete()
             }
           )
-          // Can happen if the subscription was completely synchronous.
-          let alreadyComplete = subscriptionComplete.withLock { $0 }
-          if !alreadyComplete {
+          if !innerSubscription.isCompleted {
             activeSubscriptions.withLock { $0[subscriptionId] = innerSubscription }
           }
         },

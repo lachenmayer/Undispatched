@@ -3,10 +3,11 @@
 public typealias NextHandler<V: Sendable> = @Sendable (V) -> Void
 public typealias ErrorHandler = @Sendable (Error) -> Void
 public typealias CompleteHandler = @Sendable () -> Void
-public typealias TeardownHandler = @Sendable () -> Void
+public typealias UnsubscribeLogic = @Sendable () -> Void
 public typealias SubscribeLogic<Value: Sendable> = @Sendable (Observer<Value>) throws
-  -> TeardownHandler?
-typealias Finalizer = Ref<TeardownHandler>
+  -> UnsubscribeLogic?
+
+typealias Finalizer = Ref<UnsubscribeLogic>
 
 public protocol ObserverProtocol: Sendable {
   associatedtype Value: Sendable
