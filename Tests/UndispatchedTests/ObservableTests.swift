@@ -195,6 +195,11 @@ import Undispatched
   #expect(values3 == [0, 1, 2, 3])
 }
 
+@Test func distinctUntilChanged() async throws {
+  let actual = try await Observable.of(1, 1, 1, 2, 3, 3, 4).distinctUntilChanged().values()
+  #expect(actual == [1, 2, 3, 4])
+}
+
 private struct TestError: Error {}
 
 func fail() {
