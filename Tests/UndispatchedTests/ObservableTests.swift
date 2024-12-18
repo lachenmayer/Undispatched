@@ -141,6 +141,25 @@ import Undispatched
   #expect(values.count == 4)
 }
 
+@Test func withLatestFrom() async throws {
+  let left = Observable.interval(.seconds(0.1))
+  let right = Observable.interval(.seconds(0.25))
+  let values = try await left.withLatestFrom(right).take(4).values()
+  #expect(values[0] == (2, 0))
+  #expect(values[1] == (3, 0))
+  #expect(values[2] == (4, 1))
+  #expect(values[3] == (5, 1))
+  #expect(values.count == 4)
+}
+
+@Test func when() async throws {
+  let left = Observable.interval(.seconds(0.1))
+  let right = Observable.interval(.seconds(0.25))
+  let values = try await left.when(right).take(4).values()
+  #expect(values == [1, 3, 6, 8])
+  print(values)
+}
+
 @Test func mainActor() async throws {
   @MainActor func runTest() async throws -> [Int] {
     try await Observable.of(1, 2, 3)
