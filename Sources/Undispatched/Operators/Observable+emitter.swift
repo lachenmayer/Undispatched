@@ -6,13 +6,13 @@ extension Observable {
   )
     -> Observable<Value>
   {
-    Observable { observer in
+    Observable { subscriber in
       let task = Task {
         do {
-          try await create(observer.next)
-          observer.complete()
+          try await create(subscriber.next)
+          subscriber.complete()
         } catch {
-          observer.error(error)
+          subscriber.error(error)
         }
       }
       return task.cancel

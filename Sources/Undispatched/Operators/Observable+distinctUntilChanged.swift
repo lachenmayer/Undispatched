@@ -9,7 +9,7 @@ import Synchronization
 
 extension Observable {
   public func distinctUntilChanged() -> Observable<Value> where Value: Equatable {
-    Observable { observer in
+    Observable { subscriber in
       let previousValue = Mutex<Value?>(nil)
       let subscription = subscribe(
         next: { value in
@@ -20,10 +20,10 @@ extension Observable {
             }
             return false
           }
-          if shouldEmit { observer.next(value) }
+          if shouldEmit { subscriber.next(value) }
         },
-        error: observer.error,
-        complete: observer.complete
+        error: subscriber.error,
+        complete: subscriber.complete
       )
       return subscription.unsubscribe
     }

@@ -4,7 +4,7 @@ public typealias NextHandler<V: Sendable> = @Sendable (V) -> Void
 public typealias ErrorHandler = @Sendable (Error) -> Void
 public typealias CompleteHandler = @Sendable () -> Void
 public typealias UnsubscribeLogic = @Sendable () -> Void
-public typealias SubscribeLogic<Value: Sendable> = @Sendable (Observer<Value>) throws
+public typealias SubscribeLogic<Value: Sendable> = @Sendable (Subscriber<Value>) throws
   -> UnsubscribeLogic?
 
 typealias Finalizer = Ref<UnsubscribeLogic>
@@ -25,9 +25,9 @@ public protocol ObservableProtocol: Sendable {
 }
 
 extension ObservableProtocol {
-  public func subscribe<O: ObserverProtocol>(_ observer: O) -> Subscription
+  public func subscribe<O: ObserverProtocol>(_ subscriber: O) -> Subscription
   where Self.Value == O.Value {
-    subscribe(next: observer.next, error: observer.error, complete: observer.complete)
+    subscribe(next: subscriber.next, error: subscriber.error, complete: subscriber.complete)
   }
 }
 

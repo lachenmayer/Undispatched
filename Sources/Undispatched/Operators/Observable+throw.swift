@@ -2,8 +2,8 @@
 
 extension Observable {
   public static func error(_ error: Error) -> Observable<Value> {
-    Observable { observer in
-      observer.error(error)
+    Observable { subscriber in
+      subscriber.error(error)
       return nil
     }
   }

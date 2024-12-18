@@ -14,20 +14,20 @@ extension Observable {
     subscribe onSubscribe: SubscribeHandler? = nil,
     unsubscribe onUnsubscribe: SubscribeHandler? = nil
   ) -> Observable<Value> {
-    Observable<Value> { observer in
+    Observable<Value> { subscriber in
       onSubscribe?()
       let subscription = self.subscribe(
         next: { value in
           onNext?(value)
-          observer.next(value)
+          subscriber.next(value)
         },
         error: { error in
           onError?(error)
-          observer.error(error)
+          subscriber.error(error)
         },
         complete: {
           onComplete?()
-          observer.complete()
+          subscriber.complete()
         }
       )
       return {

@@ -7,11 +7,12 @@
 
 extension Observable {
   public static func from<InnerValue>(_ values: [InnerValue]) -> Observable<InnerValue> {
-    Observable<InnerValue> { observer in
+    Observable<InnerValue> { subscriber in
       for value in values {
-        observer.next(value)
+        if subscriber.isCompleted { return nil }
+        subscriber.next(value)
       }
-      observer.complete()
+      subscriber.complete()
       return nil
     }
   }

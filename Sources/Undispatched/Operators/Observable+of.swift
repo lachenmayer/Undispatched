@@ -2,11 +2,11 @@
 
 extension Observable {
   public static func of(_ values: Value...) -> Observable<Value> {
-    Observable { observer in
+    Observable { subscriber in
       for value in values {
-        observer.next(value)
+        subscriber.next(value)
       }
-      observer.complete()
+      subscriber.complete()
       return nil
     }
   }

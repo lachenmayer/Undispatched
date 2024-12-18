@@ -2,15 +2,15 @@
 
 extension Observable {
   public func filter(_ predicate: @Sendable @escaping (Value) -> Bool) -> Observable<Value> {
-    Observable { observer in
+    Observable { subscriber in
       let subscription = subscribe(
         next: { value in
           if predicate(value) {
-            observer.next(value)
+            subscriber.next(value)
           }
         },
-        error: observer.error,
-        complete: observer.complete
+        error: subscriber.error,
+        complete: subscriber.complete
       )
       return subscription.unsubscribe
     }

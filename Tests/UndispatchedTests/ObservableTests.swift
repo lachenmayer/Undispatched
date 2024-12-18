@@ -4,9 +4,9 @@ import Testing
 import Undispatched
 
 @Test func trivial() async throws {
-  let observable = Observable<Int> { observer in
-    observer.next(1)
-    observer.complete()
+  let observable = Observable<Int> { subscriber in
+    subscriber.next(1)
+    subscriber.complete()
     return nil
   }
   let subscription = await confirmation { done in

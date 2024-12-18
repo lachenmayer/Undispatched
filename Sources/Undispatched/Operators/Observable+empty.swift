@@ -2,8 +2,8 @@
 
 extension Observable {
   public static var empty: Observable<Value> {
-    Observable { observer in
-      observer.complete()
+    Observable { subscriber in
+      subscriber.complete()
       return nil
     }
   }

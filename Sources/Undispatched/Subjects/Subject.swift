@@ -11,41 +11,41 @@ public final class Subject<Value: Sendable>: Sendable, SubjectProtocol {
   enum State {
     case completed
     case errored(_ error: Error)
-    case open(_ observers: Observers)
+    case open(_ subscribers: Subscribers)
   }
 
-  struct Observers: Sendable {
+  struct Subscribers: Sendable {
     fileprivate let nextId: Int
-    private let observers: [Int: Observer<Value>]
+    private let subscribers: [Int: Subscriber<Value>]
 
-    typealias Values = [Int: Observer<Value>].Values
+    typealias Values = [Int: Subscriber<Value>].Values
 
     fileprivate init() {
       nextId = 0
-      observers = [:]
+      subscribers = [:]
     }
 
-    private init(nextId: Int, observers: [Int: Observer<Value>]) {
+    private init(nextId: Int, subscribers: [Int: Subscriber<Value>]) {
       self.nextId = nextId
-      self.observers = observers
+      self.subscribers = subscribers
     }
 
-    var values: Values { observers.values }
+    var values: Values { subscribers.values }
 
-    fileprivate func add(_ observer: Observer<Value>) -> Observers {
-      var observers = self.observers
-      observers[self.nextId] = observer
-      return Observers(nextId: self.nextId + 1, observers: observers)
+    fileprivate func add(_ subscriber: Subscriber<Value>) -> Subscribers {
+      var subscribers = self.subscribers
+      subscribers[self.nextId] = subscriber
+      return Subscribers(nextId: self.nextId + 1, subscribers: subscribers)
     }
 
-    fileprivate func remove(_ id: Int) -> Observers {
-      var observers = self.observers
-      observers.removeValue(forKey: id)
-      return Observers(nextId: self.nextId, observers: observers)
+    fileprivate func remove(_ id: Int) -> Subscribers {
+      var subscribers = self.subscribers
+      subscribers.removeValue(forKey: id)
+      return Subscribers(nextId: self.nextId, subscribers: subscribers)
     }
   }
 
-  let state = Mutex<State>(State.open(Observers()))
+  let state = Mutex<State>(State.open(Subscribers()))
 
   public var isClosed: Bool {
     state.withLock {
@@ -60,43 +60,43 @@ public final class Subject<Value: Sendable>: Sendable, SubjectProtocol {
 
   public func next(_ value: Value) {
     if isClosed { return }
-    let observers = state.withLock { state -> Observers.Values? in
-      if case let .open(observers) = state {
-        return observers.values
+    let subscribers = state.withLock { state -> Subscribers.Values? in
+      if case let .open(subscribers) = state {
+        return subscribers.values
       }
       return nil
     }
-    guard let observers else { return /* Completed/errored already. */ }
-    for observer in observers {
-      observer.next(value)
+    guard let subscribers else { return /* Completed/errored already. */ }
+    for subscriber in subscribers {
+      subscriber.next(value)
     }
   }
 
   public func error(_ error: any Error) {
-    let observers = state.withLock { state -> Observers? in
-      if case let .open(observers) = state {
+    let subscribers = state.withLock { state -> Subscribers? in
+      if case let .open(subscribers) = state {
         state = .errored(error)
-        return observers
+        return subscribers
       }
       return nil
     }
-    guard let observers else { return /* Completed/errored already. */ }
-    for observer in observers.values {
-      observer.error(error)
+    guard let subscribers else { return /* Completed/errored already. */ }
+    for subscriber in subscribers.values {
+      subscriber.error(error)
     }
   }
 
   public func complete() {
-    let observers = state.withLock { state -> Observers? in
-      if case let .open(observers) = state {
+    let subscribers = state.withLock { state -> Subscribers? in
+      if case let .open(subscribers) = state {
         state = .completed
-        return observers
+        return subscribers
       }
       return nil
     }
-    guard let observers else { return /* Completed/errored already. */ }
-    for observer in observers.values {
-      observer.complete()
+    guard let subscribers else { return /* Completed/errored already. */ }
+    for subscriber in subscribers.values {
+      subscriber.complete()
     }
   }
 
@@ -116,27 +116,22 @@ public final class Subject<Value: Sendable>: Sendable, SubjectProtocol {
     complete: CompleteHandler? = nil
   ) -> Subscription {
     let subscriber = Subscriber(next: next, error: error, complete: complete)
-    let observer = Observer(
-      next: subscriber.next,
-      error: subscriber.error,
-      complete: subscriber.complete
-    )
-    let observerId = state.withLock { state -> Int? in
-      if case let .open(observers) = state {
-        let observerId = observers.nextId
-        state = .open(observers.add(observer))
-        return observerId
+    let subscriberId = state.withLock { state -> Int? in
+      if case let .open(subscribers) = state {
+        let subscriberId = subscribers.nextId
+        state = .open(subscribers.add(subscriber))
+        return subscriberId
       }
       return nil
     }
-    guard let observerId else {
+    guard let subscriberId else {
       // Already closed.
       return Subscription.empty
     }
     subscriber.add { [weak self] in
       self?.state.withLock { state in
-        if case let .open(observers) = state {
-          state = .open(observers.remove(observerId))
+        if case let .open(subscribers) = state {
+          state = .open(subscribers.remove(subscriberId))
         }
       }
     }
@@ -144,8 +139,8 @@ public final class Subject<Value: Sendable>: Sendable, SubjectProtocol {
   }
 
   public var observable: Observable<Value> {
-    Observable { observer in
-      let subscription = self.subscribe(observer)
+    Observable { subscriber in
+      let subscription = self.subscribe(subscriber)
       return subscription.unsubscribe
     }
   }

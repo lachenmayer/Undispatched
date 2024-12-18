@@ -11,7 +11,7 @@ extension Observable {
   public func mergeMap<Mapped>(_ f: @escaping @Sendable (Value) -> Observable<Mapped>)
     -> Observable<Mapped>
   {
-    Observable<Mapped> { observer in
+    Observable<Mapped> { subscriber in
       let nextSubscriptionId = Mutex(0)
       let activeSubscriptions = Mutex([Int: Subscription]())
       let sourceComplete = Mutex(false)
@@ -19,7 +19,7 @@ extension Observable {
       @Sendable func maybeComplete() {
         let isSourceComplete = sourceComplete.withLock { $0 }
         let noActives = activeSubscriptions.withLock { $0.isEmpty }
-        if isSourceComplete, noActives { observer.complete() }
+        if isSourceComplete, noActives { subscriber.complete() }
       }
 
       let subscription = subscribe(
@@ -31,8 +31,8 @@ extension Observable {
             return currentId
           }
           let innerSubscription = innerObservable.subscribe(
-            next: observer.next,
-            error: observer.error,
+            next: subscriber.next,
+            error: subscriber.error,
             complete: {
               let _ = activeSubscriptions.withLock { actives in
                 actives.removeValue(forKey: subscriptionId)
@@ -45,7 +45,7 @@ extension Observable {
             activeSubscriptions.withLock { $0[subscriptionId] = innerSubscription }
           }
         },
-        error: observer.error,
+        error: subscriber.error,
         complete: {
           sourceComplete.withLock { $0 = true }
           maybeComplete()

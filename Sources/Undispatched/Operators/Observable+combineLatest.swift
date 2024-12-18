@@ -6,7 +6,7 @@ extension Observable<Void> {
   public static func combineLatest<A, B>(_ a: Observable<A>, _ b: Observable<B>) -> Observable<
     (A, B)
   > {
-    Observable<(A, B)> { observer in
+    Observable<(A, B)> { subscriber in
       let values = Mutex<(a: A?, b: B?)>((a: nil, b: nil))
       let activeSubscriptions = Mutex(2)
 
@@ -15,7 +15,7 @@ extension Observable<Void> {
           $0 -= 1
           return $0 == 0
         }
-        if shouldComplete { observer.complete() }
+        if shouldComplete { subscriber.complete() }
       }
 
       let aSubscription = a.subscribe(
@@ -24,9 +24,9 @@ extension Observable<Void> {
             $0.a = value
             return liftOptional($0)
           }
-          if let combined { observer.next(combined) }
+          if let combined { subscriber.next(combined) }
         },
-        error: observer.error,
+        error: subscriber.error,
         complete: complete
       )
 
@@ -36,9 +36,9 @@ extension Observable<Void> {
             $0.b = value
             return liftOptional($0)
           }
-          if let combined { observer.next(combined) }
+          if let combined { subscriber.next(combined) }
         },
-        error: observer.error,
+        error: subscriber.error,
         complete: complete
       )
 

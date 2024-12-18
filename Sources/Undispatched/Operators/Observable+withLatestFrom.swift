@@ -9,25 +9,25 @@ import Synchronization
 
 extension Observable {
   public func withLatestFrom<Latest>(_ latest: Observable<Latest>) -> Observable<(Value, Latest)> {
-    Observable<(Value, Latest)> { observer in
+    Observable<(Value, Latest)> { subscriber in
       let latestValue = Mutex<Latest?>(nil)
       let latestSubscription = latest.subscribe(
         next: { value in
           latestValue.withLock { $0 = value }
         },
-        error: observer.error,
-        complete: observer.complete
+        error: subscriber.error,
+        complete: subscriber.complete
       )
 
       let valueSubscription = subscribe(
         next: { value in
           let latest = latestValue.withLock { $0 }
           if let latest {
-            observer.next((value, latest))
+            subscriber.next((value, latest))
           }
         },
-        error: observer.error,
-        complete: observer.complete
+        error: subscriber.error,
+        complete: subscriber.complete
       )
 
       return {

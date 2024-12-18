@@ -2,7 +2,7 @@
 
 import Synchronization
 
-final class Subscriber<Value: Sendable>: ObserverProtocol, Sendable {
+public final class Subscriber<Value: Sendable>: ObserverProtocol, Sendable {
   private let destinationNext: NextHandler<Value>?
   private let destinationError: ErrorHandler?
   private let destinationComplete: CompleteHandler?
@@ -34,7 +34,7 @@ final class Subscriber<Value: Sendable>: ObserverProtocol, Sendable {
 
   private let completedState = Mutex(false)
 
-  var isCompleted: Bool { completedState.withLock { $0 } }
+  public var isCompleted: Bool { completedState.withLock { $0 } }
 
   private func maybeComplete() -> Bool {
     completedState.withLock { completed in
@@ -45,9 +45,9 @@ final class Subscriber<Value: Sendable>: ObserverProtocol, Sendable {
   }
 
   private let finalizedState = Mutex(false)
-  
+
   var isFinalized: Bool { finalizedState.withLock { $0 } }
-  
+
   private func maybeFinalized() -> Bool {
     finalizedState.withLock { finalized in
       let alreadyFinalized = finalized
@@ -67,18 +67,18 @@ final class Subscriber<Value: Sendable>: ObserverProtocol, Sendable {
     let _ = finalizers.withLock { $0.remove(finalizer) }
   }
 
-  func next(_ value: Value) {
+  public func next(_ value: Value) {
     if isCompleted { return }
     destinationNext?(value)
   }
 
-  func error(_ error: Error) {
+  public func error(_ error: Error) {
     let alreadyCompleted = maybeComplete()
     if alreadyCompleted { return }
     destinationError?(error)
   }
 
-  func complete() {
+  public func complete() {
     let alreadyCompleted = maybeComplete()
     if alreadyCompleted { return }
     destinationComplete?()

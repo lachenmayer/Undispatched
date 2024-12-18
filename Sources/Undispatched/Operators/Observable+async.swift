@@ -4,16 +4,17 @@ extension Observable {
   public static func async(_ create: @Sendable @escaping () async throws -> Value) -> Observable<
     Value
   > {
-    Observable { observer in
+    Observable { subscriber in
       let task = Task {
+        if subscriber.isCompleted { return }
         do {
           let value = try await create()
-          observer.next(value)
-          observer.complete()
+          subscriber.next(value)
+          subscriber.complete()
         } catch is CancellationError {
           // Do nothing.
         } catch {
-          observer.error(error)
+          subscriber.error(error)
         }
       }
       return task.cancel

@@ -4,10 +4,10 @@ import Synchronization
 
 extension Observable {
   public func take(_ count: Int) -> Observable<Value> {
-    Observable { observer in
+    Observable { subscriber in
       if count <= 0 {
         let subscription = subscribe()
-        observer.complete()
+        subscriber.complete()
         return subscription.unsubscribe
       }
       let seen = Mutex(0)
@@ -17,14 +17,14 @@ extension Observable {
             seen += 1
             return seen >= count
           }
-          observer.next(value)
-          if shouldComplete { observer.complete() }
+          subscriber.next(value)
+          if shouldComplete { subscriber.complete() }
         },
         error: { error in
-          observer.error(error)
+          subscriber.error(error)
         },
         complete: {
-          observer.complete()
+          subscriber.complete()
         })
       return subscription.unsubscribe
     }
