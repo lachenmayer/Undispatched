@@ -43,7 +43,9 @@ public final class BehaviorSubject<Value: Sendable>: SubjectProtocol {
     subject.complete()
   }
 
-  public func subscribe(next: NextHandler<Value>?, error: ErrorHandler?, complete: CompleteHandler?)
+  public func subscribe(
+    next: NextHandler<Value>? = nil, error: ErrorHandler? = nil, complete: CompleteHandler? = nil
+  )
     -> Subscription
   {
     let subscription = subject.subscribe(next: next, error: error, complete: complete)
@@ -51,5 +53,9 @@ public final class BehaviorSubject<Value: Sendable>: SubjectProtocol {
       next?(currentValue)
     }
     return subscription
+  }
+
+  public func unsubscribe() {
+    subject.unsubscribe()
   }
 }
