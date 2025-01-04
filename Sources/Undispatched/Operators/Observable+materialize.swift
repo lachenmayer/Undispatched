@@ -8,18 +8,18 @@
 extension Observable {
 
   public func materialize() -> Observable<ObservableEvent<Value>> {
-    Observable<ObservableEvent<Value>> { observer in
+    Observable<ObservableEvent<Value>> { subscriber in
       self.subscribe(
         next: { value in
-          observer.next(ObservableEvent.next(value))
+          subscriber.next(ObservableEvent.next(value))
         },
         error: { error in
-          observer.next(ObservableEvent.error(AnyError(error)))
-          observer.complete()
+          subscriber.next(ObservableEvent.error(AnyError(error)))
+          subscriber.complete()
         },
         complete: {
-          observer.next(ObservableEvent.complete)
-          observer.complete()
+          subscriber.next(ObservableEvent.complete)
+          subscriber.complete()
         })
     }
   }
