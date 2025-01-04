@@ -9,11 +9,29 @@ public struct Observable<Value: Sendable>: Sendable, ObservableProtocol {
     self.subscribeLogic = subscribeLogic
   }
 
+  public init(
+    _ subscription: @escaping @Sendable (Subscriber<Value>) throws -> Subscription
+  ) {
+    self.subscribeLogic = { subscriber in
+      let subscription = try subscription(subscriber)
+      return subscription.unsubscribe
+    }
+  }
+
+  public init(
+    _ subscription: @escaping @Sendable (Subscriber<Value>) throws -> Void
+  ) {
+    self.subscribeLogic = { subscriber in
+      try subscription(subscriber)
+      return {}
+    }
+  }
+
   public func subscribe(
     next: NextHandler<Value>? = nil,
     error: ErrorHandler? = nil,
     complete: CompleteHandler? = nil
-  ) -> AnySubscriber {
+  ) -> Subscription {
     let subscriber = Subscriber(next: next, error: error, complete: complete)
     do {
       let teardown = try subscribeLogic(subscriber)
@@ -21,6 +39,6 @@ public struct Observable<Value: Sendable>: Sendable, ObservableProtocol {
     } catch {
       subscriber.error(error)
     }
-    return AnySubscriber(subscriber: subscriber)
+    return Subscription(subscriber: subscriber)
   }
 }

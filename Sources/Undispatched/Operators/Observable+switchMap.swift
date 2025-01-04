@@ -7,7 +7,7 @@ extension Observable {
     -> Observable<Mapped>
   {
     Observable<Mapped> { subscriber in
-      let innerSubscription = Mutex<AnySubscriber?>(nil)
+      let innerSubscription = Mutex<Subscription?>(nil)
       let sourceComplete = Mutex(false)
 
       @Sendable func maybeComplete() {
@@ -16,7 +16,7 @@ extension Observable {
         if isSourceComplete, innerSubscriptionExists { subscriber.complete() }
       }
 
-      let subscription = subscribe(
+      return subscribe(
         next: { value in
           innerSubscription.withLock { $0?.unsubscribe() }
           let innerObservable = f(value)
@@ -36,7 +36,6 @@ extension Observable {
           maybeComplete()
         }
       )
-      return subscription.unsubscribe
     }
   }
 

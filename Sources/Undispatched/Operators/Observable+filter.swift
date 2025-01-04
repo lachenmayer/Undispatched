@@ -3,7 +3,7 @@
 extension Observable {
   public func filter(_ predicate: @Sendable @escaping (Value) -> Bool) -> Observable<Value> {
     Observable { subscriber in
-      let subscription = subscribe(
+      return subscribe(
         next: { value in
           if predicate(value) {
             subscriber.next(value)
@@ -12,7 +12,6 @@ extension Observable {
         error: subscriber.error,
         complete: subscriber.complete
       )
-      return subscription.unsubscribe
     }
   }
 }

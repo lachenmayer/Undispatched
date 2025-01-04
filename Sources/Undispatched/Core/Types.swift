@@ -19,18 +19,13 @@ public protocol SubscriberProtocol: Sendable {
   func complete()
 }
 
-public protocol ObservableProtocol: Sendable {
-  associatedtype Value: Sendable
-
-  func subscribe(next: NextHandler<Value>?, error: ErrorHandler?, complete: CompleteHandler?)
-    -> AnySubscriber
-}
-
-extension ObservableProtocol {
-  public func subscribe<S: SubscriberProtocol>(_ subscriber: S) -> AnySubscriber
-  where Self.Value == S.Value {
-    subscribe(next: subscriber.next, error: subscriber.error, complete: subscriber.complete)
-  }
-}
-
 public protocol SubjectProtocol: SubscriberProtocol, ObservableProtocol {}
+
+public enum ObservableEvent<Value> {
+  case next(Value)
+  case error(AnyError)
+  case complete
+}
+
+extension ObservableEvent: Sendable where Value: Sendable {}
+extension ObservableEvent: Equatable where Value: Equatable {}

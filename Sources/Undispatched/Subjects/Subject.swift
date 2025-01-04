@@ -114,7 +114,7 @@ public final class Subject<Value: Sendable>: Sendable, SubjectProtocol {
     next: NextHandler<Value>? = nil,
     error: ErrorHandler? = nil,
     complete: CompleteHandler? = nil
-  ) -> AnySubscriber {
+  ) -> Subscription {
     let subscriber = Subscriber(next: next, error: error, complete: complete)
     let subscriberId = state.withLock { state -> Int? in
       if case let .open(subscribers) = state {
@@ -126,7 +126,7 @@ public final class Subject<Value: Sendable>: Sendable, SubjectProtocol {
     }
     guard let subscriberId else {
       // Already closed.
-      return AnySubscriber.empty
+      return Subscription.empty
     }
     subscriber.add { [weak self] in
       self?.state.withLock { state in
@@ -135,13 +135,6 @@ public final class Subject<Value: Sendable>: Sendable, SubjectProtocol {
         }
       }
     }
-    return AnySubscriber(subscriber: subscriber)
-  }
-
-  public var observable: Observable<Value> {
-    Observable { subscriber in
-      let subscription = self.subscribe(subscriber)
-      return subscription.unsubscribe
-    }
+    return Subscription(subscriber: subscriber)
   }
 }

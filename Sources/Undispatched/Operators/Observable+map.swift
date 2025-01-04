@@ -3,7 +3,7 @@
 extension Observable {
   public func map<Mapped>(_ f: @Sendable @escaping (Value) throws -> Mapped) -> Observable<Mapped> {
     Observable<Mapped> { subscriber in
-      let subscription = subscribe(
+      return subscribe(
         next: { value in
           do {
             let mapped = try f(value)
@@ -15,7 +15,6 @@ extension Observable {
         error: subscriber.error,
         complete: subscriber.complete
       )
-      return subscription.unsubscribe
     }
   }
 }

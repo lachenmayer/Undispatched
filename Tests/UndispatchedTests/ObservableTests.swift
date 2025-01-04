@@ -19,7 +19,7 @@ import Undispatched
 }
 
 @Test func errorInConstructor() async throws {
-  let observable = Observable<Int> { _ in
+  let observable = Observable<Int> { _ -> Void in
     throw TestError()
   }
   let subscription = await confirmation { done in
@@ -172,54 +172,7 @@ import Undispatched
   #expect(values == [])
 }
 
-@Test func subject() async throws {
-  let subject = Subject<Int>()
-  let valuesTask1 = Task { try await subject.observable.values() }
-  let valuesTask2 = Task { try await subject.observable.values() }
-  let valuesTask3 = Task { try await subject.observable.values() }
-  Task {
-    for i in (0...3) {
-      try await Task.sleep(for: .milliseconds(50))
-      subject.next(i)
-    }
-    subject.complete()
-  }
-  let values1 = try await valuesTask1.value
-  #expect(values1 == [0, 1, 2, 3])
-  let values2 = try await valuesTask2.value
-  #expect(values2 == [0, 1, 2, 3])
-  let values3 = try await valuesTask3.value
-  #expect(values3 == [0, 1, 2, 3])
-}
-
-@Test func behaviorSubject() async throws {
-  let subject = BehaviorSubject(0)
-  let valuesTask1 = Task { try await subject.observable.values() }
-  let valuesTask2 = Task { try await subject.observable.values() }
-  let valuesTask3 = Task { try await subject.observable.values() }
-  Task {
-    for i in (0...3) {
-      try await Task.sleep(for: .milliseconds(50))
-      subject.next(i)
-      #expect(try subject.value == i)
-    }
-    subject.complete()
-  }
-  let values1 = try await valuesTask1.value
-  #expect(values1 == [0, 1, 2, 3])
-  let values2 = try await valuesTask2.value
-  #expect(values2 == [0, 1, 2, 3])
-  let values3 = try await valuesTask3.value
-  #expect(values3 == [0, 1, 2, 3])
-}
-
 @Test func distinctUntilChanged() async throws {
   let actual = try await Observable.of(1, 1, 1, 2, 3, 3, 4).distinctUntilChanged().values()
   #expect(actual == [1, 2, 3, 4])
-}
-
-private struct TestError: Error {}
-
-func fail() {
-  #expect(Bool(false))
 }

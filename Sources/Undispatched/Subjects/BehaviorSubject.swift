@@ -31,8 +31,8 @@ public final class BehaviorSubject<Value: Sendable>: SubjectProtocol {
   }
 
   public func next(_ value: Value) {
-    subject.next(value)
     currentValue.withLock { $0 = value }
+    subject.next(value)
   }
 
   public func error(_ error: any Error) {
@@ -44,10 +44,12 @@ public final class BehaviorSubject<Value: Sendable>: SubjectProtocol {
   }
 
   public func subscribe(next: NextHandler<Value>?, error: ErrorHandler?, complete: CompleteHandler?)
-    -> AnySubscriber
+    -> Subscription
   {
-    subject.subscribe(next: next, error: error, complete: complete)
+    let subscription = subject.subscribe(next: next, error: error, complete: complete)
+    if !subscription.isCompleted, let currentValue = try? value {
+      next?(currentValue)
+    }
+    return subscription
   }
-
-  public var observable: Observable<Value> { subject.observable }
 }

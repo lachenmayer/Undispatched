@@ -1,0 +1,24 @@
+{
+  "configurations" : [
+    {
+      "id" : "67F2BA6F-ADF7-49EF-8FAE-FCACC0C4276A",
+      "name" : "Test Scheme Action",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "testTimeoutsEnabled" : true
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:",
+        "identifier" : "UndispatchedTests",
+        "name" : "UndispatchedTests"
+      }
+    }
+  ],
+  "version" : 1
+}

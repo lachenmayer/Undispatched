@@ -8,10 +8,10 @@ extension Observable {
       if count <= 0 {
         let subscription = subscribe()
         subscriber.complete()
-        return subscription.unsubscribe
+        return subscription
       }
       let seen = Mutex(0)
-      let subscription = subscribe(
+      return subscribe(
         next: { value in
           let shouldComplete = seen.withLock { seen in
             seen += 1
@@ -26,7 +26,6 @@ extension Observable {
         complete: {
           subscriber.complete()
         })
-      return subscription.unsubscribe
     }
   }
 }

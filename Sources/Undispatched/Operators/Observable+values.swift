@@ -4,7 +4,7 @@ import Synchronization
 
 extension Observable {
   public func values() async throws -> [Value] {
-    let subscription = Mutex<AnySubscriber?>(nil)
+    let subscription = Mutex<Subscription?>(nil)
     let values = ConcurrentArray<Value>()
     try await withTaskCancellationHandler {
       try await withCheckedThrowingContinuation { continuation in

@@ -85,8 +85,8 @@ public final class Subscriber<Value: Sendable>: SubscriberProtocol, Sendable {
   }
 
   func unsubscribe() {
-    let alreadyClosed = maybeFinalized()
-    if alreadyClosed { return }
+    let alreadyFinalized = maybeFinalized()
+    if alreadyFinalized { return }
     completedState.withLock { $0 = true }
     let finalizers = finalizers.withLock { $0 }
     for finalizer in finalizers {
